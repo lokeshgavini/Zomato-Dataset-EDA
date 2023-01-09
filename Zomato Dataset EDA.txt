@@ -1,0 +1,133 @@
+Step 1:
+
+#Importing Libraries
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+
+# Importing the CSV file:
+
+lg=pd.read_csv('C:/Users/lokes/OneDrive/Desktop/EDA & Feature Engineering/Zomato DS/zomato.csv')
+
+                                                                                                                                                           UnicodeDecodeError: 'utf-8' codec can't decode byte 0xed in position 7044: invalid continuation byte (if we get this error we need to add Encoder)
+
+lg=pd.read_csv('C:/Users/lokes/OneDrive/Desktop/EDA & Feature Engineering/Zomato DS/zomato.csv',encoding='latin-1')    (Inorder to get rid of the error we have added Encoder)
+
+
+
+lg.head(10)          ( check whether we can access the file)
+
+
+lg.columns        (To check the columns in the Dataset)
+
+
+lg.info()    (What are the columns and datatype of each column)
+
+
+lg.describe()          (It will calculate the Mean, Count, Std, Min, 25%, 50%, 75%, Max) for all the columns.
+
+
+lg.isnull().sum()       (To find the Sum of null Values in all the columns)  This will give list of all cols along with their sum.
+
+
+[features for features in df.columns if df[features].isnull().sum()>0]         This command will display only the column names whose sum is greater than 0, i.e it will display all the column names, that will not satisfy the condition.   
+
+
+plt.figure(figsize=(10,7))
+sns.heatmap(lg.corr(), annot=True)
+plt.title('Correlation between the columns')
+plt.show()
+
+(Heat Map for finding the Corelation between the Columns)
+
+
+
+#$ We are now reading another dataset, which has the country codes and their respective countries. In the 1st Data, we only have the country code but we don't know which country it is pointing to. 
+
+
+we are merging the 2 datasets, so that we will have countries along with their country codes.
+
+
+
+final_ds=pd.merge(lg,country,on='Country Code',how='left')   ( Merging 2 Datasets lg and country, By the column Country Code i.e which is common in both the datasets and using left join for merge)
+
+
+final_ds.Country.value_counts()       (Value counts of each item inside the Country Column)
+
+
+country_names=final_df.Country.value_counts().index
+
+country_val=final_df.Country.value_counts().values
+
+
+## Pie Chart- Top 3 countries that uses zomato
+plt.pie(country_val[:3],labels=country_names[:3],autopct='%1.2f%%')
+
+                                                             Observation:Zomato maximum records or transaction are from India After that USA and then United Kingdoms.
+
+
+
+ratings=final_ds.groupby(['Aggregate rating','Rating color','Rating text']).size().reset_index().rename(columns={0:'Rating Column'})
+
+                                                                     Grouping with 3 columns and reseting the indexes after the groupby and renaming the newely created column.
+
+
+
+import matplotlib
+matplotlib.rcParams['figure.figsize'] = (12, 6)
+sns.barplot(x="Aggregate rating",y="Rating Count",data=ratings)                   (Creating a Bar plot for x and y axis and data is taken from ratings Dataframe)
+
+
+
+sns.barplot(x="Aggregate rating",y="Rating Count",hue='Rating color',data=ratings,palette=['blue','red','orange','yellow','green','green'])              ( as per the ratings colour we are changing the colour of the bars in the Bar chart)
+
+
+                                                                                                                                    Write down your observations from this Bar plot as well
+
+
+## Count plot
+sns.countplot(x="Rating color",data=ratings,palette=['blue','red','orange','yellow','green','green'])     ( Used for counting the Categorical Data)
+
+
+
+### Find the countries name that has given 0 rating      ( Below are the 2 ways to get our output)
+
+final_df[final_df['Rating color']=='White'].groupby('Country').size().reset_index()
+
+final_df.groupby(['Aggregate rating','Country']).size().reset_index().head(5)
+
+
+
+##find out which currency is used by which country?
+
+
+final_ds.columns
+
+final_ds['Currency'].unique()
+
+final_ds.groupby(['Country','Currency']).size().reset_index().rename(columns={0:'No of Times'})
+
+
+
+
+## Which Countries do have online deliveries option
+
+final_ds['Has Online delivery'].unique()
+
+final_ds[final_ds['Has Online delivery'] == 'Yes'].groupby(['Country']).size().reset_index()
+
+
+## Create a pie chart for top 5 cities distribution
+
+u=final_ds.City.value_counts().head(5)
+v=final_ds.City.value_counts().head(5).index
+
+plt.pie(u,labels=v)
+
+
+
+
